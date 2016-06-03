@@ -1,0 +1,9 @@
+access_key = "[aws access key here]"
+secret_key = "[aws secret key here]"
+
+key_name 			= "[keyname]"
+public_key_path 	= "[path to .pub key file here]"
+private_key_path 	= "[path to .pem key file here (or sometimes no extension)]"
+name_prefix 		= "[name prefix for resources]"
+environment 		= "[environment label]"
+stack_name  		= "[reference name for the entire stack of resources]" 
