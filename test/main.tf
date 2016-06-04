@@ -70,8 +70,3 @@ module "bastion" {
 #   # bastion_ip       = "${module.bastion.public_ip}"
 #   private_key_path = "${var.private_key_path}"
 # }
-
-
-# output "bastion_ip" {
-#   value = "${module.bastion.public_ip}"
-# }
