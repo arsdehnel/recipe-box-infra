@@ -1,11 +1,12 @@
-variable "application" {}
+variable "name_prefix" {}
+variable "stack_name" {}
 variable "environment" {}
 variable "vpc_id" {}
-variable "public_subnet_id" {}
+variable "subnet_id" {}
 variable "app_instance_id" {}
 
 resource "aws_security_group" "elb" {
-  name        = "sg_app_elb"
+  name        = "${var.name_prefix}sg_app_elb"
   description = "Application ELB security"
   vpc_id      = "${var.vpc_id}"
 
@@ -25,12 +26,17 @@ resource "aws_security_group" "elb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  tags {
+    stack_name = "${var.stack_name}"
+    environment = "${var.environment}"
+  }    
+
 }
 
 resource "aws_elb" "elb" {
-  name = "ELB"
+  name = "${var.stack_name}elb"
 
-  subnets         = ["${var.public_subnet_id}"]
+  subnets         = ["${var.subnet_id}"]
   security_groups = ["${aws_security_group.elb.id}"]
   instances       = ["${var.app_instance_id}"]
 
@@ -50,12 +56,8 @@ resource "aws_elb" "elb" {
   }
 
   tags {
-    Application = "${var.application}"
-    Environment = "${var.environment}"
-  }
+    stack_name = "${var.stack_name}"
+    environment = "${var.environment}"
+  }    
 
-}
-
-output "sec_grp_id" {
-  value = "${aws_security_group.elb.id}"
 }

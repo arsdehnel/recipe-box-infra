@@ -6,7 +6,7 @@ variable "vpc_id" {}
 variable "subnet_id" {}
 variable "key_pair_id" {}
 variable "app_ami" {}
-# variable "elb_sec_grp_id" {}
+variable "elb_sec_grp_id" {}
 variable "bastion_ip" {}
 
 resource "aws_security_group" "application" {
@@ -27,7 +27,7 @@ resource "aws_security_group" "application" {
     to_port         = 80
     protocol        = "tcp"
     cidr_blocks     = ["0.0.0.0/0"]
-    # security_groups = [ "${var.elb_sec_grp_id}" ]
+    security_groups = [ "${var.elb_sec_grp_id}" ]
   }
 
   # outbound internet access

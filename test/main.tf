@@ -44,16 +44,18 @@ module "bastion" {
   subnet_id         = "${module.public_subnet.id}"
 }
 
-# module "elb" {
-#   source           = "../module-elb"
+module "elb" {
+  source            = "../module-elb"
 
-#   environment      = "qa"
-#   application      = "GoalQuest"
-#   vpc_id           = "${module.vpc.vpc_id}"
-#   public_subnet_id = "${module.vpc.public_subnet_id}"
-#   app_instance_id  = "${module.app.instance_id}"
+  environment       = "${var.environment}"
+  stack_name        = "${var.stack_name}"
+  name_prefix       = "${var.name_prefix}"
 
-# }
+  vpc_id            = "${module.vpc.vpc_id}"
+  subnet_id         = "${module.public_subnet.id}"
+  app_instance_id   = "${module.app.instance_id}"
+
+}
 
 module "app" {
   source            = "../module-app"
@@ -66,7 +68,7 @@ module "app" {
   app_ami           = "${lookup(var.aws_linux_amis, var.aws_region)}"
   vpc_id            = "${module.vpc.vpc_id}"
   subnet_id         = "${module.public_subnet.id}"
-  # elb_sec_grp_id   = "${module.elb.sec_grp_id}"
+  elb_sec_grp_id    = "${module.elb.sec_grp_id}"
   bastion_ip        = "${module.bastion.public_ip}"
   private_key_path  = "${var.private_key_path}"
 }
