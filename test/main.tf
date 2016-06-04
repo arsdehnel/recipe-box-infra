@@ -17,15 +17,31 @@ module "vpc" {
   name_prefix     = "${var.name_prefix}"
 }
 
+module "public_subnet" {
+  source          = "../module-subnet"
+
+  environment     = "${var.environment}"
+  stack_name      = "${var.stack_name}"
+  name            = "${var.name_prefix}public"
+  az              = "us-west-2b"
+  cidr            = "10.0.1.0/24"
+  vpc_id          = "${module.vpc.vpc_id}"
+  route_table_id  = "${module.vpc.main_route_table_id}"
+  public          = true
+}
+
 # module "bastion" {
-#   source           = "../module-bastion"
+#   source            = "../module-bastion"
   
-#   environment      = "qa"
-#   application      = "GoalQuest"
-#   key_pair_id      = "${aws_key_pair.goalquest.id}"
-#   bastion_ami      = "${lookup(var.aws_amis, var.aws_region)}"
-#   vpc_id           = "${module.vpc.vpc_id}"
-#   public_subnet_id = "${module.vpc.public_subnet_id}"
+#   environment       = "${var.environment}"
+#   stack_name        = "${var.stack_name}"
+#   name_prefix       = "${var.name_prefix}"
+
+#   key_pair_id       = "${aws_key_pair.keypair.id}"
+#   bastion_ami       = "${lookup(var.aws_linux_amis, var.aws_region)}"
+#   instance_type     = "t2.micro"
+#   vpc_id            = "${module.vpc.vpc_id}"
+#   public_subnet_id  = "${module.public_subnet.id}"
 # }
 
 # module "elb" {
@@ -42,14 +58,16 @@ module "vpc" {
 # module "app" {
 #   source           = "../module-app"
   
-#   environment      = "qa"
-#   application      = "GoalQuest"
-#   key_pair_id      = "${aws_key_pair.goalquest.id}"
+#   environment      = "${var.environment}"
+#   stack_name      = "${var.stack_name}"
+#   name_prefix     = "${var.name_prefix}"
+
+#   key_pair_id      = "${aws_key_pair.keypair.id}"
 #   app_ami          = "${lookup(var.aws_amis, var.aws_region)}"
 #   vpc_id           = "${module.vpc.vpc_id}"
 #   public_subnet_id = "${module.vpc.public_subnet_id}"
 #   elb_sec_grp_id   = "${module.elb.sec_grp_id}"
-#   bastion_ip       = "${module.bastion.public_ip}"
+#   # bastion_ip       = "${module.bastion.public_ip}"
 #   private_key_path = "${var.private_key_path}"
 # }
 
