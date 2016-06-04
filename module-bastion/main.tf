@@ -3,7 +3,7 @@ variable "stack_name" {}
 variable "environment" {}
 variable "vpc_id" {}
 variable "key_pair_id" {}
-variable "public_subnet_id" {}
+variable "subnet_id" {}
 variable "bastion_ami" {}
 variable "instance_type" {}
 
@@ -54,7 +54,7 @@ resource "aws_security_group" "allow_access_from_bastion" {
 resource "aws_instance" "bastion" {
   ami                     = "${var.bastion_ami}"
   instance_type           = "${var.instance_type}"
-  subnet_id               = "${var.public_subnet_id}"
+  subnet_id               = "${var.subnet_id}"
   key_name                = "${var.key_pair_id}"
   security_groups         = ["${aws_security_group.bastion.id}"]
 
@@ -63,9 +63,4 @@ resource "aws_instance" "bastion" {
     stack_name = "${var.stack_name}"
     environment = "${var.environment}"
   }
-}
-
-resource "aws_eip" "bastion" {
-  instance = "${aws_instance.bastion.id}"
-  vpc = true
 }

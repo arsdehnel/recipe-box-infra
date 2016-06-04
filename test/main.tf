@@ -30,19 +30,19 @@ module "public_subnet" {
   public          = true
 }
 
-# module "bastion" {
-#   source            = "../module-bastion"
+module "bastion" {
+  source            = "../module-bastion"
   
-#   environment       = "${var.environment}"
-#   stack_name        = "${var.stack_name}"
-#   name_prefix       = "${var.name_prefix}"
+  environment       = "${var.environment}"
+  stack_name        = "${var.stack_name}"
+  name_prefix       = "${var.name_prefix}"
 
-#   key_pair_id       = "${aws_key_pair.keypair.id}"
-#   bastion_ami       = "${lookup(var.aws_linux_amis, var.aws_region)}"
-#   instance_type     = "t2.micro"
-#   vpc_id            = "${module.vpc.vpc_id}"
-#   public_subnet_id  = "${module.public_subnet.id}"
-# }
+  key_pair_id       = "${aws_key_pair.keypair.id}"
+  bastion_ami       = "${lookup(var.aws_linux_amis, var.aws_region)}"
+  instance_type     = "t2.micro"
+  vpc_id            = "${module.vpc.vpc_id}"
+  subnet_id         = "${module.public_subnet.id}"
+}
 
 # module "elb" {
 #   source           = "../module-elb"
