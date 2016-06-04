@@ -56,7 +56,7 @@ resource "aws_instance" "bastion" {
   instance_type           = "${var.instance_type}"
   subnet_id               = "${var.subnet_id}"
   key_name                = "${var.key_pair_id}"
-  security_groups         = ["${aws_security_group.bastion.id}"]
+  vpc_security_group_ids  = ["${aws_security_group.bastion.id}"]
 
   tags {
     Name = "${var.name_prefix}bastion"

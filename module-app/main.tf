@@ -1,15 +1,16 @@
-variable "private_key_path" {}
-variable "application" {}
+variable "name_prefix" {}
+variable "stack_name" {}
 variable "environment" {}
+variable "private_key_path" {}
 variable "vpc_id" {}
-variable "public_subnet_id" {}
+variable "subnet_id" {}
 variable "key_pair_id" {}
 variable "app_ami" {}
-variable "elb_sec_grp_id" {}
+# variable "elb_sec_grp_id" {}
 variable "bastion_ip" {}
 
 resource "aws_security_group" "application" {
-  name        = "sg_app_instance"
+  name        = "${var.name_prefix}app"
   description = "Internal app security"
   vpc_id      = "${var.vpc_id}"
 
@@ -26,7 +27,7 @@ resource "aws_security_group" "application" {
     to_port         = 80
     protocol        = "tcp"
     cidr_blocks     = ["0.0.0.0/0"]
-    security_groups = [ "${var.elb_sec_grp_id}" ]
+    # security_groups = [ "${var.elb_sec_grp_id}" ]
   }
 
   # outbound internet access
@@ -36,6 +37,11 @@ resource "aws_security_group" "application" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags {
+    stack_name = "${var.stack_name}"
+    environment = "${var.environment}"
+  }    
 
 }
 
@@ -51,44 +57,25 @@ resource "aws_instance" "application" {
     ami                         = "${var.app_ami}"
 	vpc_security_group_ids      = ["${aws_security_group.application.id}"]
     key_name                    = "${var.key_pair_id}"
-	subnet_id                   = "${var.public_subnet_id}"
+	subnet_id                   = "${var.subnet_id}"
     associate_public_ip_address = true
 
     # provisioner "remote-exec" {
     #     script = "~/Projects/products/gq-infra/module-app/startup.sh"
     # }
 
-	provisioner "remote-exec" {
-    	inline = [
-			"sudo apt-get -y update",
-			"sudo apt-get -y install nginx",
-			"sudo service nginx start"
-		]
-    }
+	# provisioner "remote-exec" {
+ #    	inline = [
+	# 		"sudo apt-get -y update",
+	# 		"sudo apt-get -y install nginx",
+	# 		"sudo service nginx start"
+	# 	]
+ #    }
 
     tags {
-        Name = "Application"
-        Application = "${var.application}"
-        Environment = "${var.environment}"
+        Name = "${var.name_prefix}app"
+        stack_name = "${var.stack_name}"
+        environment = "${var.environment}"
     }
 
-
-}
-
-resource "aws_launch_configuration" "as_conf" {
-
-    name_prefix            = "app-"
-    image_id               = "${var.app_ami}"
-    instance_type          = "t2.micro"
-    security_groups        = ["${aws_security_group.application.id}"]
-    key_name               = "${var.key_pair_id}"
-
-    lifecycle {
-      create_before_destroy = true
-    }
-
-}
-
-output "instance_id" {
-    value = "${aws_instance.application.id}"
 }
