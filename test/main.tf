@@ -38,7 +38,7 @@ module "bastion" {
   name_prefix       = "${var.name_prefix}"
 
   key_pair_id       = "${aws_key_pair.keypair.id}"
-  bastion_ami       = "${lookup(var.aws_linux_amis, var.aws_region)}"
+  bastion_ami       = "${lookup(var.aws_ubuntu_amis, var.aws_region)}"
   instance_type     = "t2.micro"
   vpc_id            = "${module.vpc.vpc_id}"
   subnet_id         = "${module.public_subnet.id}"
@@ -58,17 +58,32 @@ module "elb" {
 }
 
 module "app" {
-  source            = "../module-app"
+    source            = "../module-app"
+
+    environment       = "${var.environment}"
+    stack_name        = "${var.stack_name}"
+    name_prefix       = "${var.name_prefix}"
+
+    key_pair_id       = "${aws_key_pair.keypair.id}"
+    app_ami           = "${lookup(var.aws_amazon_amis, var.aws_region)}"
+    vpc_id            = "${module.vpc.vpc_id}"
+    subnet_id         = "${module.public_subnet.id}"
+    elb_sec_grp_id    = "${module.elb.sec_grp_id}"
+    bastion_ip        = "${module.bastion.public_ip}"
+    private_key_path  = "${var.private_key_path}"
+
+    # these are so we can pass them to the CodeDeploy script
+    access_key    = "${var.access_key}"
+    secret_key    = "${var.secret_key}"
+    region        = "${var.aws_region}"
+
+}
+
+module "deploy" {
+  source            = "../module-codedeploy"
   
   environment       = "${var.environment}"
   stack_name        = "${var.stack_name}"
   name_prefix       = "${var.name_prefix}"
 
-  key_pair_id       = "${aws_key_pair.keypair.id}"
-  app_ami           = "${lookup(var.aws_linux_amis, var.aws_region)}"
-  vpc_id            = "${module.vpc.vpc_id}"
-  subnet_id         = "${module.public_subnet.id}"
-  elb_sec_grp_id    = "${module.elb.sec_grp_id}"
-  bastion_ip        = "${module.bastion.public_ip}"
-  private_key_path  = "${var.private_key_path}"
 }
