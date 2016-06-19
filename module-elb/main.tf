@@ -3,7 +3,7 @@ variable "stack_name" {}
 variable "environment" {}
 variable "vpc_id" {}
 variable "subnet_id" {}
-variable "app_instance_id" {}
+variable "instance_id" {}
 
 resource "aws_security_group" "elb" {
   name        = "${var.name_prefix}sg_app_elb"
@@ -38,10 +38,10 @@ resource "aws_elb" "elb" {
 
   subnets         = ["${var.subnet_id}"]
   security_groups = ["${aws_security_group.elb.id}"]
-  instances       = ["${var.app_instance_id}"]
+  instances       = ["${var.instance_id}"]
 
   listener {
-    instance_port     = 80
+    instance_port     = 4000
     instance_protocol = "http"
     lb_port           = 80
     lb_protocol       = "http"
@@ -51,7 +51,7 @@ resource "aws_elb" "elb" {
     healthy_threshold = 3
     unhealthy_threshold = 5
     timeout = 60
-    target = "TCP:80"
+    target = "TCP:4000"
     interval = 90
   }
 

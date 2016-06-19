@@ -12,8 +12,8 @@ variable "app_ami" {}
 variable "elb_sec_grp_id" {}
 variable "bastion_ip" {}
 
-resource "aws_security_group" "application" {
-  name        = "${var.name_prefix}app"
+resource "aws_security_group" "phoenix" {
+  name        = "${var.name_prefix}phoenix"
   description = "Internal app security"
   vpc_id      = "${var.vpc_id}"
 
@@ -27,20 +27,20 @@ resource "aws_security_group" "application" {
 
   # internet traffic
   ingress {
-    from_port       = 80
-    to_port         = 80
+    from_port       = 4000
+    to_port         = 4000
     protocol        = "tcp"
     cidr_blocks     = ["0.0.0.0/0"]
     security_groups = [ "${var.elb_sec_grp_id}" ]
   }
 
-  # RDP access for CodeDeploy
-  ingress {
-    from_port       = 3389
-    to_port         = 3389
-    protocol        = "tcp"
-    cidr_blocks     = ["0.0.0.0/0"]
-  }
+  # # RDP access for CodeDeploy
+  # ingress {
+  #   from_port       = 3389
+  #   to_port         = 3389
+  #   protocol        = "tcp"
+  #   cidr_blocks     = ["0.0.0.0/0"]
+  # }
 
   # outbound internet access
   egress {
@@ -57,25 +57,25 @@ resource "aws_security_group" "application" {
 
 }
 
-resource "aws_instance" "application" {
+resource "aws_instance" "phoenix" {
 
     connection {
         # bastion_host = "${var.bastion_ip}"
-        user = "ec2-user"
+        user = "ubuntu"
         private_key = "${file(var.private_key_path)}"
     }
 
 	instance_type               = "t2.small"
     ami                         = "${var.app_ami}"
-	vpc_security_group_ids      = ["${aws_security_group.application.id}"]
+	vpc_security_group_ids      = ["${aws_security_group.phoenix.id}"]
     key_name                    = "${var.key_pair_id}"
 	subnet_id                   = "${var.subnet_id}"
     associate_public_ip_address = true
 
     # create a script that we will push to the remote to execute to initialize the codedeploy agent
-    provisioner "local-exec" {
-        command = "${path.module}/create-startup.sh ${path.module}/startup.sh ${var.region} ${var.access_key} ${var.secret_key}"
-    }
+    # provisioner "local-exec" {
+    #     command = "${path.module}/create-startup.sh ${path.module}/startup-codedeploy.sh ${var.region} ${var.access_key} ${var.secret_key}"
+    # }
 
     # push that script to the remove and run it
     provisioner "remote-exec" {
@@ -90,12 +90,12 @@ resource "aws_instance" "application" {
     # }
 
     # remove that script from our local because it has our access keys in it
-    provisioner "local-exec" {
-        command = "rm ${path.module}/startup.sh"
-    }
+    # provisioner "local-exec" {
+    #     command = "rm ${path.module}/startup-codedeploy.sh"
+    # }
 
     tags {
-        Name = "${var.name_prefix}app"
+        Name = "${var.name_prefix}phoenix"
         stack_name = "${var.stack_name}"
         environment = "${var.environment}"
     }

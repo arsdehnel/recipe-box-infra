@@ -45,27 +45,27 @@ module "bastion" {
 }
 
 module "elb" {
-  source            = "../module-elb"
+  source              = "../module-elb"
 
-  environment       = "${var.environment}"
-  stack_name        = "${var.stack_name}"
-  name_prefix       = "${var.name_prefix}"
+  environment         = "${var.environment}"
+  stack_name          = "${var.stack_name}"
+  name_prefix         = "${var.name_prefix}"
 
-  vpc_id            = "${module.vpc.vpc_id}"
-  subnet_id         = "${module.public_subnet.id}"
-  app_instance_id   = "${module.app.instance_id}"
+  vpc_id              = "${module.vpc.vpc_id}"
+  subnet_id           = "${module.public_subnet.id}"
+  instance_id         = "${module.api.instance_id}"
 
 }
 
-module "app" {
-    source            = "../module-app"
+module "api" {
+    source            = "../module-phoenix"
 
     environment       = "${var.environment}"
     stack_name        = "${var.stack_name}"
     name_prefix       = "${var.name_prefix}"
 
     key_pair_id       = "${aws_key_pair.keypair.id}"
-    app_ami           = "${lookup(var.aws_amazon_amis, var.aws_region)}"
+    app_ami           = "${lookup(var.aws_ubuntu_amis, var.aws_region)}"
     vpc_id            = "${module.vpc.vpc_id}"
     subnet_id         = "${module.public_subnet.id}"
     elb_sec_grp_id    = "${module.elb.sec_grp_id}"
@@ -79,9 +79,20 @@ module "app" {
 
 }
 
-module "deploy" {
+module "deploy_role" {
+  source            = "../module-codedeployrole"
+
+  environment       = "${var.environment}"
+  stack_name        = "${var.stack_name}"
+  name_prefix       = "${var.name_prefix}"
+
+}
+
+module "deploy_api" {
   source            = "../module-codedeploy"
-  
+
+  deploy_code       = "api"
+  arn               = "${module.deploy_role.arn}"
   environment       = "${var.environment}"
   stack_name        = "${var.stack_name}"
   name_prefix       = "${var.name_prefix}"
