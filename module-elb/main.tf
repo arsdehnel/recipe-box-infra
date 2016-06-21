@@ -41,7 +41,7 @@ resource "aws_elb" "elb" {
   instances       = ["${var.instance_id}"]
 
   listener {
-    instance_port     = 4000
+    instance_port     = 4001
     instance_protocol = "http"
     lb_port           = 80
     lb_protocol       = "http"
@@ -51,7 +51,7 @@ resource "aws_elb" "elb" {
     healthy_threshold = 3
     unhealthy_threshold = 5
     timeout = 60
-    target = "TCP:4000"
+    target = "TCP:4001"
     interval = 90
   }
 

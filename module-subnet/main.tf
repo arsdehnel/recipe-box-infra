@@ -4,7 +4,9 @@ variable "environment" {}
 variable "cidr" {}
 variable "vpc_id" {}
 variable "route_table_id" {}
-variable "public" {}
+variable "public" {
+	default = false
+}
 variable "az" {}
 
 resource "aws_subnet" "standard" {

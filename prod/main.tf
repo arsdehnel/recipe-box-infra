@@ -30,6 +30,19 @@ module "public_subnet" {
   public          = true
 }
 
+module "db_subnet" {
+  source          = "../module-subnet"
+
+  environment     = "${var.environment}"
+  stack_name      = "${var.stack_name}"
+  name            = "${var.name_prefix}db"
+  az              = "us-west-2b"
+  cidr            = "10.0.2.0/24"
+  vpc_id          = "${module.vpc.vpc_id}"
+  route_table_id  = "${module.vpc.main_route_table_id}"
+}
+
+
 module "bastion" {
   source            = "../module-bastion"
   
@@ -71,6 +84,7 @@ module "api" {
     elb_sec_grp_id    = "${module.elb.sec_grp_id}"
     bastion_ip        = "${module.bastion.public_ip}"
     private_key_path  = "${var.private_key_path}"
+    secret_file_path  = "/Users/dehnel/Projects/arsdehnel/recipe-box-api/config/prod.secret.exs"
 
     # these are so we can pass them to the CodeDeploy script
     access_key    = "${var.access_key}"

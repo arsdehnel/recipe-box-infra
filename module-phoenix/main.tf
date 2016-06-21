@@ -11,6 +11,7 @@ variable "key_pair_id" {}
 variable "app_ami" {}
 variable "elb_sec_grp_id" {}
 variable "bastion_ip" {}
+variable "secret_file_path" {}
 
 resource "aws_security_group" "phoenix" {
   name        = "${var.name_prefix}phoenix"
@@ -27,8 +28,8 @@ resource "aws_security_group" "phoenix" {
 
   # internet traffic
   ingress {
-    from_port       = 4000
-    to_port         = 4000
+    from_port       = 4001
+    to_port         = 4001
     protocol        = "tcp"
     cidr_blocks     = ["0.0.0.0/0"]
     security_groups = [ "${var.elb_sec_grp_id}" ]
@@ -77,6 +78,18 @@ resource "aws_instance" "phoenix" {
     #     command = "${path.module}/create-startup.sh ${path.module}/startup-codedeploy.sh ${var.region} ${var.access_key} ${var.secret_key}"
     # }
 
+    # doing just stupid command here so that it waits for the OS to be booted up on the remote machine so that the subsequent local-exec can scp to it
+    provisioner "remote-exec" {
+        inline = [
+          "echo \"machine ready...\""
+        ]
+    }
+
+    # copy up the prod "secrets" file that is not in git
+    provisioner "local-exec" {
+        command = "scp -i ~/.ssh/recipebox -o StrictHostKeyChecking=no ${var.secret_file_path} ubuntu@${self.public_ip}:/home/ubuntu"
+    }
+
     # push that script to the remove and run it
     provisioner "remote-exec" {
         script = "${path.module}/startup.sh"
@@ -101,3 +114,16 @@ resource "aws_instance" "phoenix" {
     }
 
 }
+
+# resource "aws_security_group_rule" "db_access" {
+
+#     type        = "ingress"
+#     from_port   = 5432
+#     to_port     = 5432
+#     protocol    = "tcp"
+#     # cidr_blocks = ["0.0.0.0/0"]
+
+#     security_group_id = "sg-dd1b1aba"
+#     source_security_group_id = "${aws_security_group.phoenix.id}"
+
+# }
