@@ -30,7 +30,7 @@ module "public_subnet" {
   public          = true
 }
 
-module "db_subnet" {
+module "db_west2b_subnet" {
   source          = "../module-subnet"
 
   environment     = "${var.environment}"
@@ -41,7 +41,29 @@ module "db_subnet" {
   vpc_id          = "${module.vpc.vpc_id}"
   route_table_id  = "${module.vpc.main_route_table_id}"
 }
+module "db_west2c_subnet" {
+  source          = "../module-subnet"
 
+  environment     = "${var.environment}"
+  stack_name      = "${var.stack_name}"
+  name            = "${var.name_prefix}db"
+  az              = "us-west-2c"
+  cidr            = "10.0.3.0/24"
+  vpc_id          = "${module.vpc.vpc_id}"
+  route_table_id  = "${module.vpc.main_route_table_id}"
+}
+
+
+module "db" {
+  source            = "../module-rds"
+
+  environment     = "${var.environment}"
+  stack_name      = "${var.stack_name}"
+  name            = "${var.name_prefix}db"
+
+  subnet_1          = "${module.db_west2b_subnet.id}"
+  subnet_2          = "${module.db_west2c_subnet.id}"
+}
 
 module "bastion" {
   source            = "../module-bastion"
