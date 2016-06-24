@@ -43,6 +43,6 @@ MIX_ENV=prod mix compile
 MIX_ENV=prod mix phoenix.digest
 
 
-MIX_ENV=prod mix ecto.migrate
+# MIX_ENV=prod mix ecto.migrate
 # MIX_ENV=prod PORT=4001 mix phoenix.server
 # MIX_ENV=prod PORT=4001 elixir --detached -S mix do compile, phoenix.server

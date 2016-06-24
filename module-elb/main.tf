@@ -4,9 +4,10 @@ variable "environment" {}
 variable "vpc_id" {}
 variable "subnet_id" {}
 variable "instance_id" {}
+variable "instance_code" {}
 
 resource "aws_security_group" "elb" {
-  name        = "${var.name_prefix}sg_app_elb"
+  name        = "${var.name_prefix}sg_${var.instance_code}_elb"
   description = "Application ELB security"
   vpc_id      = "${var.vpc_id}"
 
@@ -34,7 +35,7 @@ resource "aws_security_group" "elb" {
 }
 
 resource "aws_elb" "elb" {
-  name = "${var.stack_name}elb"
+  name = "${var.stack_name}${var.instance_code}-elb"
 
   subnets         = ["${var.subnet_id}"]
   security_groups = ["${aws_security_group.elb.id}"]
