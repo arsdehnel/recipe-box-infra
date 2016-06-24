@@ -7,3 +7,6 @@ output "public_subnet_id" {
 output "db_endpoint" {
 	value = "${module.db.endpoint}"
 }
+output "db_sec_grp_id" {
+	value = "${module.db.sec_grp_id}"
+}

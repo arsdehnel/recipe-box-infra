@@ -59,8 +59,10 @@ module "db" {
 
   environment     = "${var.environment}"
   stack_name      = "${var.stack_name}"
+  name_prefix     = "${var.name_prefix}"
   name            = "${var.name_prefix}db"
 
+  vpc_id          = "${module.vpc.vpc_id}"
   subnet_1          = "${module.db_west2b_subnet.id}"
   subnet_2          = "${module.db_west2c_subnet.id}"
 }

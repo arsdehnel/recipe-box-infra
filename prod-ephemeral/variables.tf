@@ -7,12 +7,28 @@ variable "environment" {}
 variable "stack_name" {}
 variable "name_prefix" {}
 
+###############################
+# from the PERSISTENT setup   #
+###############################
 variable "vpc_id" {
-	default = "vpc-16036d72"
+	default = "vpc-3eddb45a"
 }
 variable "public_subnet_id" {
-	default = "subnet-b52045d1"
+	default = "subnet-3bd1b45f"
 }
+variable "db_endpoint" {
+	default = "tf-sbt3uaonbrhpral2d3mxcedony.csbflrjl6b8q.us-west-2.rds.amazonaws.com"
+}
+variable "db_sec_grp_id" {
+	default = "sg-fa30b79c"
+}
+
+
+
+
+
+
+
 
 variable "aws_region" {
     default = "us-west-2"

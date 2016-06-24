@@ -12,6 +12,7 @@ variable "app_ami" {}
 variable "elb_sec_grp_id" {}
 variable "bastion_ip" {}
 variable "secret_file_path" {}
+variable "db_sec_grp_id" {}
 
 resource "aws_security_group" "phoenix" {
   name        = "${var.name_prefix}phoenix"
@@ -115,15 +116,15 @@ resource "aws_instance" "phoenix" {
 
 }
 
-# resource "aws_security_group_rule" "db_access" {
+resource "aws_security_group_rule" "db_access" {
 
-#     type        = "ingress"
-#     from_port   = 5432
-#     to_port     = 5432
-#     protocol    = "tcp"
-#     # cidr_blocks = ["0.0.0.0/0"]
+    type        = "ingress"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    # cidr_blocks = ["0.0.0.0/0"]
 
-#     security_group_id = "sg-dd1b1aba"
-#     source_security_group_id = "${aws_security_group.phoenix.id}"
+    security_group_id = "${var.db_sec_grp_id}"
+    source_security_group_id = "${aws_security_group.phoenix.id}"
 
-# }
+}

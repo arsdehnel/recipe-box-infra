@@ -33,6 +33,7 @@ module "api" {
     bastion_ip        = "${module.bastion.public_ip}"
     private_key_path  = "${var.private_key_path}"
     secret_file_path  = "/Users/dehnel/Projects/arsdehnel/recipe-box-api/config/prod.secret.exs"
+    db_sec_grp_id     = "${var.db_sec_grp_id}"
 
     # these are so we can pass them to the CodeDeploy script
     access_key        = "${var.access_key}"
