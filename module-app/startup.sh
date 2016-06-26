@@ -14,7 +14,7 @@ sudo apt-get -y install npm
 ####################################
 echo "getting git ready and cloning the repo"
 sudo apt-get -y install git
-git clone https://github.com/arsdehnel/recipe-box.git
-cd recipe-box
+git clone https://github.com/arsdehnel/recipe-box-web.git
+cd recipe-box-web
 npm install
-# npm start
+node server.js
