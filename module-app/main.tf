@@ -65,16 +65,6 @@ resource "aws_instance" "app" {
 	subnet_id                   = "${var.subnet_id}"
     associate_public_ip_address = true
 
-    provisioner "remote-exec" {
-        inline = [
-          "echo \"machine ready...\""
-        ]
-    }
-
-    provisioner "local-exec" {
-        command = "ssh -i ${var.private_key_path} -o StrictHostKeyChecking=no ubuntu@${self.public_ip}"
-    }
-
     # push the startup script to the remote and run it
     provisioner "remote-exec" {
         script = "${path.module}/startup.sh"

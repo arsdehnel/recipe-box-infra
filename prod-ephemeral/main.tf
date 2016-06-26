@@ -14,12 +14,12 @@ module "bastion" {
   key_pair_id       = "${var.key_name}"
   bastion_ami       = "${lookup(var.aws_ubuntu_amis, var.aws_region)}"
   instance_type     = "t2.micro"
-  vpc_id            = "${var.vpc_id}"
-  subnet_id         = "${var.public_subnet_id}"
+  vpc_id            = "${var.persistent_output.vpc_id}"
+  subnet_id         = "${var.persistent_output.public_subnet_id}"
 }
 
 module "api" {
-    source            = "../module-phoenix"
+    source            = "../module-api"
 
     environment       = "${var.environment}"
     stack_name        = "${var.stack_name}"
@@ -27,13 +27,14 @@ module "api" {
 
     key_pair_id       = "${var.key_name}"
     app_ami           = "${lookup(var.aws_ubuntu_amis, var.aws_region)}"
-    vpc_id            = "${var.vpc_id}"
-    subnet_id         = "${var.public_subnet_id}"
+    vpc_id            = "${var.persistent_output.vpc_id}"
+    subnet_id         = "${var.persistent_output.public_subnet_id}"
     elb_sec_grp_id    = "${module.api_elb.sec_grp_id}"
     bastion_ip        = "${module.bastion.public_ip}"
     private_key_path  = "${var.private_key_path}"
     secret_file_path  = "/Users/dehnel/Projects/arsdehnel/recipe-box-api/config/prod.secret.exs"
-    db_sec_grp_id     = "${var.db_sec_grp_id}"
+    db_sec_grp_id     = "${var.persistent_output.db_sec_grp_id}"
+    db_address        = "${var.persistent_output.db_address}"
 
     # these are so we can pass them to the CodeDeploy script
     access_key        = "${var.access_key}"
@@ -50,8 +51,8 @@ module "api_elb" {
   name_prefix         = "${var.name_prefix}"
 
   instance_code       = "api"
-  vpc_id              = "${var.vpc_id}"
-  subnet_id           = "${var.public_subnet_id}"
+  vpc_id              = "${var.persistent_output.vpc_id}"
+  subnet_id           = "${var.persistent_output.public_subnet_id}"
   instance_id         = "${module.api.instance_id}"
 
 }
@@ -65,8 +66,8 @@ module "app" {
 
     key_pair_id       = "${var.key_name}"
     app_ami           = "${lookup(var.aws_ubuntu_amis, var.aws_region)}"
-    vpc_id            = "${var.vpc_id}"
-    subnet_id         = "${var.public_subnet_id}"
+    vpc_id            = "${var.persistent_output.vpc_id}"
+    subnet_id         = "${var.persistent_output.public_subnet_id}"
     elb_sec_grp_id    = "${module.app_elb.sec_grp_id}"
     bastion_ip        = "${module.bastion.public_ip}"
     private_key_path  = "${var.private_key_path}"
@@ -81,8 +82,8 @@ module "app_elb" {
   name_prefix         = "${var.name_prefix}"
 
   instance_code       = "app"
-  vpc_id              = "${var.vpc_id}"
-  subnet_id           = "${var.public_subnet_id}"
+  vpc_id              = "${var.persistent_output.vpc_id}"
+  subnet_id           = "${var.persistent_output.public_subnet_id}"
   instance_id         = "${module.app.instance_id}"
 
 }

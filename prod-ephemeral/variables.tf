@@ -10,21 +10,15 @@ variable "name_prefix" {}
 ###############################
 # from the PERSISTENT setup   #
 ###############################
-variable "vpc_id" {
-	default = "vpc-3eddb45a"
-}
-variable "public_subnet_id" {
-	default = "subnet-3bd1b45f"
-}
-variable "db_endpoint" {
-	default = "tf-sbt3uaonbrhpral2d3mxcedony.csbflrjl6b8q.us-west-2.rds.amazonaws.com"
-}
-variable "db_sec_grp_id" {
-	default = "sg-fa30b79c"
-}
 
-
-
+variable "persistent_output" {
+	default = {
+		db_address       = "tf-ur6xxvd7tjaelda5qfmlijahfa.csbflrjl6b8q.us-west-2.rds.amazonaws.com"
+		db_sec_grp_id    = "sg-f023a396"
+		public_subnet_id = "subnet-1ac1a57e"
+		vpc_id           = "vpc-b294ffd6"
+	}
+}
 
 
 

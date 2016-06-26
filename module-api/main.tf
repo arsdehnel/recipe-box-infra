@@ -13,9 +13,10 @@ variable "elb_sec_grp_id" {}
 variable "bastion_ip" {}
 variable "secret_file_path" {}
 variable "db_sec_grp_id" {}
+variable "db_address" {}
 
-resource "aws_security_group" "phoenix" {
-  name        = "${var.name_prefix}phoenix"
+resource "aws_security_group" "api" {
+  name        = "${var.name_prefix}api"
   description = "Internal app security"
   vpc_id      = "${var.vpc_id}"
 
@@ -59,7 +60,7 @@ resource "aws_security_group" "phoenix" {
 
 }
 
-resource "aws_instance" "phoenix" {
+resource "aws_instance" "api" {
 
     connection {
         # bastion_host = "${var.bastion_ip}"
@@ -69,7 +70,7 @@ resource "aws_instance" "phoenix" {
 
 	instance_type               = "t2.small"
     ami                         = "${var.app_ami}"
-	vpc_security_group_ids      = ["${aws_security_group.phoenix.id}"]
+	vpc_security_group_ids      = ["${aws_security_group.api.id}"]
     key_name                    = "${var.key_pair_id}"
 	subnet_id                   = "${var.subnet_id}"
     associate_public_ip_address = true
@@ -86,9 +87,17 @@ resource "aws_instance" "phoenix" {
         ]
     }
 
+    # sed out the {{db_address}} and copy the base file into a new startup file
+    provisioner "local-exec" {
+      command = "rm -f ${path.module}/config.exs"
+    }
+    provisioner "local-exec" {
+      command = "sed 's/{{db_address}}/${var.db_address}/g' ${var.secret_file_path} > ${path.module}/config.exs"
+    }
+
     # copy up the prod "secrets" file that is not in git
     provisioner "local-exec" {
-        command = "scp -i ~/.ssh/recipebox -o StrictHostKeyChecking=no ${var.secret_file_path} ubuntu@${self.public_ip}:/home/ubuntu"
+        command = "scp -i ~/.ssh/recipebox -o StrictHostKeyChecking=no ${path.module}/config.exs ubuntu@${self.public_ip}:/home/ubuntu"
     }
 
     # push that script to the remove and run it
@@ -109,7 +118,7 @@ resource "aws_instance" "phoenix" {
     # }
 
     tags {
-        Name = "${var.name_prefix}phoenix"
+        Name = "${var.name_prefix}api"
         stack_name = "${var.stack_name}"
         environment = "${var.environment}"
     }
@@ -125,6 +134,6 @@ resource "aws_security_group_rule" "db_access" {
     # cidr_blocks = ["0.0.0.0/0"]
 
     security_group_id = "${var.db_sec_grp_id}"
-    source_security_group_id = "${aws_security_group.phoenix.id}"
+    source_security_group_id = "${aws_security_group.api.id}"
 
 }
